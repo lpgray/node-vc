@@ -1,0 +1,24 @@
+{
+  "name": "node-vc",
+  "version": "0.2.0",
+  "description": "A light weight node view-controller framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lpgray/node-vc.git"
+  },
+  "keywords": [
+    "mvc"
+  ],
+  "author": "lpgray",
+  "bugs": {
+    "url": "https://github.com/lpgray/node-vc/issues"
+  },
+  "homepage": "https://github.com/lpgray/node-vc",
+  "dependencies" : {
+    "ejs" : "1.0.0"
+  }
+}
