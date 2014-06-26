@@ -1,23 +1,21 @@
 node-vc
 =======
 
-A light weight node view-controller framework
+一个不到100行代码跑web"视图-控制器"小框架。
 
-## Features
+# 特性
 
-### Route Mapping
-Ex: `'post:/submit' : 'handlerName'` will send a post request to the `/submit` url, and the `handlerName` function will be called.
+## 路由映射
+例如：配置一个 `'post:/submit' : 'handlerName'`，`handlerName`会处理`/submit`请求的`post`类型。
 
-### View Render Engine
-You can return json or HTML to the client, and can change the view engine at the runtime.
+## 视图渲染随心定制
+可以在运行时随时随地改变json输出还是基于ejs的html输出
 
-##Getting Started
-### nodevc.json definition
-You must **put the nodevc.json file into the folder where you node-start-command start**.
+#Getting Started
+## 配置文件 nodevc.json
+配置一个nodevc.json文件，如果你在控制台中运行`node app.js`，你必须把 `nodevc.json` 文件跟`app.js`文件放在同一个文件夹下。
 
-Ex: if I type `node app.js`, you must put the nodevc.json in the same folder with the app.js file.
-
-The `views_folder` and `controllers_folder` are in the same folder too, you can put them all into the root folder of your project.
+在我下面定义的例子中，views文件夹和controllers文件夹都是在项目根目录。
 
 	{
 		"port" : "8080",
@@ -29,36 +27,34 @@ The `views_folder` and `controllers_folder` are in the same folder too, you can 
 		}
 	}
 
-I think it is clear to see.
+参数解读：
 
-### write a view
-As nodevc.json above, I will add a `index.ejs` into the views folder.
+- port: web服务器的port
+- views_folder: ejs模板所在的文件夹
+- controllers_folder: 控制器所在的文件夹
+- mapping: 路由配置，例如当请求首页的时候，会映射到 common.js 的 index 函数。
 
-About how to write an ejs template, please go to [the ejs](https://github.com/visionmedia/ejs).
 
-### write a handler
-As nodevc.json above, I will add a `common.js` into the controllers folder.
+## 创建一个视图
+在上面定义的views文件夹下创建一个index.ejs文件，关于 [ejs](https://github.com/visionmedia/ejs)。
 
-A handler function required three parameters.
+## 创建一个控制器
+在上面定义的controllers文件夹下建立一个common.js文件，然后在里面写两个函数。
 
-- request
-- response
-- callback
-
-For Example, this is my common.js file:
+例如，你可以这样写:
 
 
 	exports.index = function(req, resp, callback){
 	  callback(0, 'index', {data : 'Hello World!'});
 	}
 
-	// the `exports.index` function will return a html string rendered the data based on the `index.ejs` file.
+	// 这个函数会用返回的数据{data:"Hello World"}渲染index.ejs文件
 	
 	exports.index_json = function(req, resp, callback){
 	  callback(0, 0, {data : 'Hello World!'});
 	}
 
-	// the `exports.index_json` function will return a json string of the data to the client.
+	// 这个函数没有指定视图，因此直接返回json字符串。
 
 
 
