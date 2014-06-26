@@ -51,11 +51,14 @@ For Example, this is my common.js file:
 	exports.index = function(req, resp, callback){
 	  callback(0, 'index', {data : 'Hello World!'});
 	}
+
+	// the `exports.index` function will return a html string rendered the data based on the `index.ejs` file.
 	
 	exports.index_json = function(req, resp, callback){
 	  callback(0, 0, {data : 'Hello World!'});
 	}
 
-the `exports.index` function will return a html string rendered the data based on the `index.ejs` file.
+	// the `exports.index_json` function will return a json string of the data to the client.
 
-the `exports.index` function will return a json string of the data to the client.
+
+
