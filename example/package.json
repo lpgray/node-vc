@@ -1,0 +1,6 @@
+{
+  "name": "node-vc-test",
+  "dependencies" : {
+    "node-vc" : "0.2.3"
+  }
+}
