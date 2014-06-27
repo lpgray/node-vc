@@ -1,15 +1,24 @@
 node-vc
 =======
 
-一个不到100行代码跑web"视图-控制器"小框架。
+一个不到100行代码的"node 视图-控制器"小框架。
 
 # 特性
 
 ## 路由映射
-例如：配置一个 `'post:/submit' : 'handlerName'`，`handlerName`会处理`/submit`请求的`post`类型。
+`'post:/submit' : 'handlerName'`，`handlerName`会处理`/submit`请求的`post`类型。
 
 ## 视图渲染随心定制
 可以在运行时随时随地改变json输出还是基于ejs的html输出
+
+# 例子
+啥都不如例子实在，
+
+- 请大家进入example文件夹
+- `npm install`安装依赖
+- 运行`node app.js`
+- 浏览器访问[http://127.0.0.1:8080](http://127.0.0.1:8080)
+- 再访问[http://127.0.0.1:8080/index_json](http://127.0.0.1:8080/index_json)看看
 
 #Getting Started
 ## 配置文件 nodevc.json
@@ -55,6 +64,3 @@ node-vc
 	}
 
 	// 这个函数没有指定视图，因此直接返回json字符串。
-
-
-
