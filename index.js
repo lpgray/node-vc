@@ -2,7 +2,9 @@ var http = require('http'),
   ejs = require('ejs'),
   router,
   view_folder,
-  controllers_folder;
+  controllers_folder,
+  url = require('url'),
+  querystring = require('querystring');
 
 /**
  * Will called before handler excution
@@ -10,7 +12,7 @@ var http = require('http'),
  * @param  {[type]} req     [http request]
  * @param  {[type]} resp    [http response]
  */
-function beforeAction(handler, req, resp) {
+function beforeAction(handler, req, resp, params) {
   handler(req, resp, function(err, view, data) {
     if (err && view === 'json') {
       resp.writeHead(500, {
@@ -36,7 +38,7 @@ function beforeAction(handler, req, resp) {
       data: data
     });
     
-  });
+  }, params);
 }
 
 /**
@@ -45,17 +47,19 @@ function beforeAction(handler, req, resp) {
  * @param  {[type]} resp       [http response]
  */
 function onRequest(req, resp) {
-  var keyWithMethod = req.method.toLowerCase() + ':' + req.url;
 
-  if (router[req.url]) { // get request or not defined request
-    var ctrl_string = router[req.url];
+  var urlObj = url.parse(req.url, true);
+  var keyWithMethod = req.method.toLowerCase() + ':' + urlObj.pathname;
+
+  if (req.method.toLowerCase()==='get' && (router[urlObj.pathname] || router['get:' + urlObj.pathname]) ) { // get request or not defined request
+    var ctrl_string = router[urlObj.pathname] || router['get:' + urlObj.pathname];
     var module_method_arr = ctrl_string.split('.');
     var module_name = module_method_arr[0];
     var method_name = module_method_arr[1];
 
     var module = require(controllers_folder + '/' + module_name + '.js');
 
-    beforeAction(module[method_name], req, resp);
+    beforeAction(module[method_name], req, resp, urlObj.query);
 
   } else if (router[keyWithMethod]) {
     var ctrl_string = router[keyWithMethod];
@@ -65,7 +69,16 @@ function onRequest(req, resp) {
 
     var module = require(controllers_folder + '/' + module_name + '.js');
 
-    beforeAction(module[method_name], req, resp);
+    var data = '';
+    req.setEncoding('utf8');
+
+    req.on('data', function(chunk){
+      data += chunk.toString();
+    })
+
+    req.on('end', function(){
+      beforeAction(module[method_name], req, resp, querystring.parse(data));
+    })
 
   } else {
     resp.writeHead(404, {
@@ -134,5 +147,8 @@ exports.start = function() {
   controllers_folder = start_pos + '/' + vc_config.controllers_folder;
   router = vc_config.mapping;
 
-  http.createServer(onRequest).listen(vc_config.port);
+  var server = http.createServer(onRequest).listen(vc_config.port);
+  console.info('nodevc is listening on ' + vc_config.port + '...');
+
+  return server;
 }
