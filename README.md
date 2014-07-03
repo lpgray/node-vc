@@ -1,7 +1,7 @@
 node-vc
 =======
 
-一个不到100行代码的"node 视图-控制器"小框架。
+一个不到200行代码的"node 视图-控制器"小框架。
 
 # 特性
 
@@ -45,22 +45,33 @@ node-vc
 
 
 ## 创建一个视图
+
+### 基于ejs的html
 在上面定义的views文件夹下创建一个index.ejs文件，关于 [ejs](https://github.com/visionmedia/ejs)。
 
-## 创建一个控制器
+### 返回json
+*参见创建控制器例子*
+
+## 创建控制器
 在上面定义的controllers文件夹下建立一个common.js文件，然后在里面写两个函数。
 
-例如，你可以这样写:
-
-
+### 举个栗子
+	// http:locahost:8080/ 的get类型的请求会定位到这里
 	exports.index = function(req, resp, callback){
 	  callback(0, 'index', {data : 'Hello World!'});
 	}
-
 	// 这个函数会用返回的数据{data:"Hello World"}渲染index.ejs文件
 	
+	// http:locahost:8080/index_json 的get类型的请求会定位到这里
 	exports.index_json = function(req, resp, callback){
 	  callback(0, 0, {data : 'Hello World!'});
 	}
+	// 这个函数没有指定视图
+	// 在callback的第二个参数传递0
+	// 会把{data : 'Hello World'}直接返回json字符串到浏览器端。
 
-	// 这个函数没有指定视图，因此直接返回json字符串。
+### 控制器获取参数
+
+	exports.controller = (req, resp, callback, params){
+	  // 在params中获取你传的参数
+	}
