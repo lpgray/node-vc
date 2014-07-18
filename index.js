@@ -14,7 +14,7 @@ var http = require('http'),
  */
 function beforeAction(handler, req, resp, params) {
   handler(req, resp, function(err, view, data) {
-    if (err && view === 'json') {
+    if (err && !view) {
       resp.writeHead(500, {
         'Content-Type': 'text/plain'
       });
