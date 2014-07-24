@@ -6,6 +6,8 @@ var http = require('http'),
   url = require('url'),
   querystring = require('querystring');
 
+var beforeResponse, beforeRequest;
+
 /**
  * Will called before handler excution
  * @param  {[type]} handler
@@ -14,22 +16,23 @@ var http = require('http'),
  */
 function beforeAction(handler, req, resp, params) {
   handler(req, resp, function(err, view, data) {
+    
     if (err && !view) {
       resp.writeHead(500, {
         'Content-Type': 'text/plain'
       });
       resp.end(JSON.stringify({
         r: 0,
-        msg: err
+        msg: err.toString()
       }));
       return;
     }
 
-    if (err) {
+    if (err && !!view) {
       resp.writeHead(500, {
         'Content-Type': 'text/plain'
       });
-      resp.end(err + '');
+      resp.end(err.toString());
       return;
     }
 
@@ -47,6 +50,7 @@ function beforeAction(handler, req, resp, params) {
  * @param  {[type]} resp       [http response]
  */
 function onRequest(req, resp) {
+  beforeRequest && beforeRequest.call(null, req, resp);
 
   var urlObj = url.parse(req.url, true);
   var keyWithMethod = req.method.toLowerCase() + ':' + urlObj.pathname;
@@ -95,45 +99,76 @@ function onRequest(req, resp) {
  * @param  {[type]} renderData [view name and rendered data]
  */
 function onResponse(req, resp, renderData) {
-  // undefined view
-  if (!renderData.view && !renderData.data) {
-    resp.writeHead(500, {
-      'Content-Type': 'text/html'
-    });
-    resp.end('<h1>500</h1> template not found');
-    return;
+  beforeResponse && beforeResponse.call(null, req, resp, renderData);
+
+  if(resp.cookies){
+    var cookies = '';
+    resp.cookies.forEach(function(item, idx, arr){
+      cookies += item.name;
+      cookies += '=';
+      cookies += item.value;
+
+      if(item.expire){
+        cookies += ';Expires=' + item.expire + ';'
+      }
+    })
   }
 
+  var data = renderData.data;
+  
+  // undefined view
+  // if (!renderData.view && !renderData.data) {
+  //   resp.writeHead(500, {
+  //     'Content-Type': 'text/html'
+  //   });
+  //   resp.end('<h1>500</h1> template not found');
+  //   return;
+  // }
+
   // return json
-  if (!renderData.view && renderData.data) {
+  if (!renderData.view) {
     resp.writeHead(200, {
-      'Content-Type': 'text/plain'
+      'Content-Type': 'text/plain',
+      'Set-Cookie' : cookies
     });
-    // resp.end(JSON.stringify(renderData.data));
     resp.end(JSON.stringify({
       r: 1,
-      b: renderData.data
+      b: data
     }));
     return;
   }
 
+  // redirect
+  if(renderData.view && renderData.view.indexOf('redirect:')>-1){
+    var start_pos = renderData.view.indexOf(':');
+    resp.writeHead(302, {
+      'Location': renderData.view.substring(start_pos+1),
+      'Set-Cookie' : cookies
+    });
+    resp.end();
+    return;
+  }
+
   // render template
-  var data = renderData.data || {};
   ejs.renderFile(view_folder + '/' + renderData.view + '.ejs', data, function(err, html) {
     if (err) {
       resp.writeHead(500, {
-        'Content-Type': 'text/plain'
+        'Content-Type': 'text/plain',
+        'Set-Cookie' : cookies
       });
-      resp.end(err);
+      resp.end(err.toString());
+      return;
     }
+
     resp.writeHead(200, {
-      'Content-Type': 'text/html'
+      'Content-Type': 'text/html',
+      'Set-Cookie' : cookies
     });
     resp.end(html);
   });
 }
 
-exports.start = function() {
+exports.start = function(port) {
   var start_pos = process.cwd();
 
   try {
@@ -147,8 +182,18 @@ exports.start = function() {
   controllers_folder = start_pos + '/' + vc_config.controllers_folder;
   router = vc_config.mapping;
 
-  var server = http.createServer(onRequest).listen(vc_config.port);
-  console.info('nodevc is listening on ' + vc_config.port + '...');
+  var the_port = port || vc_config.port;
+
+  var server = http.createServer(onRequest).listen(the_port);
+  console.info('nodevc is listening on ' + the_port + '...');
 
   return server;
+}
+
+exports.beforeResponse = function(cb){
+  beforeResponse = cb;
+}
+
+exports.beforeRequest = function(cb){
+  beforeRequest = cb;
 }

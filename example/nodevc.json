@@ -1,5 +1,5 @@
 {
-	"port" : "8080",
+	"port" : 8000,
 	"views_folder" : "views",
 	"controllers_folder" : "controllers",
 	"mapping" : {
