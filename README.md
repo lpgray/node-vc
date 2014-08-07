@@ -1,5 +1,4 @@
-#node-vc
-
+# node-vc
 [![NPM version][npm-image]][npm-url]
 
 一个不到200行代码的"node 视图-控制器"小框架。
