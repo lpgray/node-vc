@@ -1,9 +1,9 @@
 {
-	"port" : 8000,
+	"port" : 0,
 	"views_folder" : "views",
 	"controllers_folder" : "controllers",
 	"mapping" : {
 		"/" : "common.index",
-		"/index_json" : "common.index_json"
+		"/json" : "common.index_json"
 	}
 }

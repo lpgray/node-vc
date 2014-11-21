@@ -1,30 +1,23 @@
-var http = require('http'),
-  ejs = require('ejs'),
-  router,
-  view_folder,
-  controllers_folder,
-  url = require('url'),
-  querystring = require('querystring');
+var http = require('http');
+var ejs = require('ejs');
+var router;
+var view_folder;
+var controllers_folder;
+var url = require('url');
+var querystring = require('querystring');
 
-var beforeResponse, beforeRequest;
+var beforeResponse;
+var beforeRequest;
 
-/**
- * Will called before handler excution
- * @param  {[type]} handler
- * @param  {[type]} req     [http request]
- * @param  {[type]} resp    [http response]
- */
+// Will called before handler excution
 function beforeAction(handler, req, resp, params) {
-  handler(req, resp, function(err, view, data) {
+  handler(req, resp, params, function(err, view, data) {
     
     if (err && !view) {
       resp.writeHead(500, {
         'Content-Type': 'text/plain'
       });
-      resp.end(JSON.stringify({
-        r: 0,
-        msg: err.toString()
-      }));
+      resp.end( JSON.stringify({error : err.toString()}) );
       return;
     }
 
@@ -41,14 +34,10 @@ function beforeAction(handler, req, resp, params) {
       data: data
     });
     
-  }, params);
+  });
 }
 
-/**
- * All request start here
- * @param  {[type]} req        [http request]
- * @param  {[type]} resp       [http response]
- */
+// All request start here
 function onRequest(req, resp) {
   beforeRequest && beforeRequest.call(null, req, resp);
 
@@ -92,12 +81,7 @@ function onRequest(req, resp) {
   }
 }
 
-/**
- * Will called after handler excution
- * @param  {[type]} req        [http request]
- * @param  {[type]} resp       [http response]
- * @param  {[type]} renderData [view name and rendered data]
- */
+// Will called after handler excution
 function onResponse(req, resp, renderData) {
   beforeResponse && beforeResponse.call(null, req, resp, renderData);
 
@@ -131,10 +115,7 @@ function onResponse(req, resp, renderData) {
       'Content-Type': 'text/plain',
       'Set-Cookie' : cookies
     });
-    resp.end(JSON.stringify({
-      r: 1,
-      b: data
-    }));
+    resp.end(JSON.stringify(data));
     return;
   }
 
@@ -182,10 +163,11 @@ exports.start = function(port) {
   controllers_folder = start_pos + '/' + vc_config.controllers_folder;
   router = vc_config.mapping;
 
-  var the_port = port || vc_config.port;
+  var port = vc_config.port || 3000;
 
-  var server = http.createServer(onRequest).listen(the_port);
-  console.info('nodevc is listening on ' + the_port + '...');
+  var server = http.createServer(onRequest).listen(port);
+
+  console.info('node-vc is listening on ' + port + '...');
 
   return server;
 }
