@@ -88,26 +88,26 @@ function onResponse(req, resp, renderData) {
   if(resp.cookies){
     var cookies = '';
     resp.cookies.forEach(function(item, idx, arr){
+      if(idx > 0){
+        cookies += ',';
+      }
+
       cookies += item.name;
       cookies += '=';
       cookies += item.value;
 
-      if(item.expire){
-        cookies += ';Expires=' + item.expire + ';'
+      if(item.maxAge){
+        cookies += ';Max-Age=' + item.maxAge + ';'
+      }
+
+      if(item.httpOnly){
+        cookies += 'HttpOnly=true;';
       }
     })
+    console.info(cookies);
   }
 
   var data = renderData.data;
-  
-  // undefined view
-  // if (!renderData.view && !renderData.data) {
-  //   resp.writeHead(500, {
-  //     'Content-Type': 'text/html'
-  //   });
-  //   resp.end('<h1>500</h1> template not found');
-  //   return;
-  // }
 
   // return json
   if (!renderData.view) {

@@ -1,1 +1,1 @@
-require('node-vc').start();
+require('../index').start();
